@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Sunrise Dental Clinic</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="bg-slate-50 min-h-screen font-['Inter'] flex flex-col justify-between">
+
+    <!-- Shared Header -->
+    <div id="shared-header"></div>
+
+    <!-- Main Content Container -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow w-full">
+
+        <!-- Welcome Banner -->
+        <div class="bg-gradient-to-r from-teal-600 via-sky-600 to-indigo-600 rounded-3xl p-8 text-white shadow-xl shadow-sky-200/50 mb-8 relative overflow-hidden">
+            <div class="absolute right-0 top-0 w-96 h-96 bg-white/10 rounded-full blur-3xl -mr-20 -mt-20"></div>
+            <div class="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center space-y-4 md:space-y-0">
+                <div>
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-white/20 text-teal-100 backdrop-blur-md mb-2">
+                        <i class="fa-solid fa-hospital mr-1.5"></i> Computerized Dental Clinic System
+                    </span>
+                    <h1 class="text-3xl font-extrabold tracking-tight">Welcome to Sunrise Dental Clinic</h1>
+                    <p class="text-teal-100 text-sm mt-1 max-w-xl font-light">
+                        Select a task below to register new patient appointments, search dental records, compute bills with itemized add-ons, or inspect system design patterns.
+                    </p>
+                </div>
+                <div class="flex space-x-3">
+                    <a href="register-appointment.html" class="px-5 py-3 bg-white text-teal-700 hover:bg-teal-50 font-bold rounded-2xl shadow-lg transition-all text-sm flex items-center space-x-2">
+                        <i class="fa-solid fa-plus-circle"></i>
+                        <span>New Appointment</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- KPI Metric Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <!-- Metric 1 -->
+            <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-all flex items-center space-x-4">
+                <div class="w-14 h-14 bg-teal-50 rounded-2xl flex items-center justify-center text-teal-600 text-2xl">
+                    <i class="fa-solid fa-calendar-check"></i>
+                </div>
+                <div>
+                    <span class="text-xs font-medium text-slate-400 uppercase tracking-wider block">Today's Visits</span>
+                    <span id="kpi-today" class="text-2xl font-extrabold text-slate-800">3</span>
+                    <span class="text-xs text-teal-600 font-semibold block mt-0.5"><i class="fa-solid fa-arrow-up"></i> Active Schedule</span>
+                </div>
+            </div>
+
+            <!-- Metric 2 -->
+            <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-all flex items-center space-x-4">
+                <div class="w-14 h-14 bg-sky-50 rounded-2xl flex items-center justify-center text-sky-600 text-2xl">
+                    <i class="fa-solid fa-user-doctor"></i>
+                </div>
+                <div>
+                    <span class="text-xs font-medium text-slate-400 uppercase tracking-wider block">Active Dentists</span>
+                    <span class="text-2xl font-extrabold text-slate-800">3</span>
+                    <span class="text-xs text-sky-600 font-semibold block mt-0.5">Colombo Specialists</span>
+                </div>
+            </div>
+
+            <!-- Metric 3 -->
+            <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-all flex items-center space-x-4">
+                <div class="w-14 h-14 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-600 text-2xl">
+                    <i class="fa-solid fa-money-bill-wave"></i>
+                </div>
+                <div>
+                    <span class="text-xs font-medium text-slate-400 uppercase tracking-wider block">Total Revenue</span>
+                    <span id="kpi-revenue" class="text-2xl font-extrabold text-slate-800">LKR 48,700</span>
+                    <span class="text-xs text-emerald-600 font-semibold block mt-0.5">Itemized Decorator Bills</span>
+                </div>
+            </div>
+
+            <!-- Metric 4 -->
+            <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-all flex items-center space-x-4">
+                <div class="w-14 h-14 bg-amber-50 rounded-2xl flex items-center justify-center text-amber-600 text-2xl">
+                    <i class="fa-solid fa-cubes"></i>
+                </div>
+                <div>
+                    <span class="text-xs font-medium text-slate-400 uppercase tracking-wider block">Notifications</span>
+                    <span class="text-2xl font-extrabold text-slate-800">Email & SMS</span>
+                    <span class="text-xs text-amber-600 font-semibold block mt-0.5">Automated Patient Alerts</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Navigation Grid -->
+        <h2 class="text-lg font-bold text-slate-800 mb-4 flex items-center">
+            <i class="fa-solid fa-grip text-teal-600 mr-2"></i> System Functionalities
+        </h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+
+            <!-- Card 1: Register Appointment -->
+            <a href="register-appointment.html" class="group bg-white p-6 rounded-3xl border border-slate-100 shadow-sm hover:shadow-xl hover:border-teal-200 transition-all flex flex-col justify-between">
+                <div>
+                    <div class="w-12 h-12 bg-teal-500 rounded-2xl text-white flex items-center justify-center text-xl mb-4 group-hover:scale-110 transition-transform">
+                        <i class="fa-solid fa-calendar-plus"></i>
+                    </div>
+                    <h3 class="text-base font-bold text-slate-800 group-hover:text-teal-600 transition-colors">1. Register New Appointment</h3>
+                    <p class="text-xs text-slate-500 mt-2 leading-relaxed">
+                        Register new patients, assign unique appointment numbers (APT-XXXX), select dentists, treatment types, and real-time add-on price calculations.
+                    </p>
+                </div>
+                <div class="mt-6 flex items-center text-xs font-bold text-teal-600 group-hover:translate-x-1 transition-transform">
+                    <span>Open Registration Form</span>
+                    <i class="fa-solid fa-arrow-right ml-2"></i>
+                </div>
+            </a>
+
+            <!-- Card 2: Display & Search Appointment Details -->
+            <a href="appointment-details.html" class="group bg-white p-6 rounded-3xl border border-slate-100 shadow-sm hover:shadow-xl hover:border-sky-200 transition-all flex flex-col justify-between">
+                <div>
+                    <div class="w-12 h-12 bg-sky-500 rounded-2xl text-white flex items-center justify-center text-xl mb-4 group-hover:scale-110 transition-transform">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </div>
+                    <h3 class="text-base font-bold text-slate-800 group-hover:text-sky-600 transition-colors">2. Patient & Appointment Details</h3>
+                    <p class="text-xs text-slate-500 mt-2 leading-relaxed">
+                        Search by Appointment Number, view complete patient records, contact info, treatment history, and use Memento pattern to undo edits.
+                    </p>
+                </div>
+                <div class="mt-6 flex items-center text-xs font-bold text-sky-600 group-hover:translate-x-1 transition-transform">
+                    <span>Search Records</span>
+                    <i class="fa-solid fa-arrow-right ml-2"></i>
+                </div>
+            </a>
+
+            <!-- Card 3: Calculate & Print Bill -->
+            <a href="billing.html" class="group bg-white p-6 rounded-3xl border border-slate-100 shadow-sm hover:shadow-xl hover:border-emerald-200 transition-all flex flex-col justify-between">
+                <div>
+                    <div class="w-12 h-12 bg-emerald-500 rounded-2xl text-white flex items-center justify-center text-xl mb-4 group-hover:scale-110 transition-transform">
+                        <i class="fa-solid fa-file-invoice-dollar"></i>
+                    </div>
+                    <h3 class="text-base font-bold text-slate-800 group-hover:text-emerald-600 transition-colors">3. Calculate & Print Bill</h3>
+                    <p class="text-xs text-slate-500 mt-2 leading-relaxed">
+                        Compute itemized treatment costs + consultation fee + clinical add-ons via Decorator Pattern and print professional receipt PDFs.
+                    </p>
+                </div>
+                <div class="mt-6 flex items-center text-xs font-bold text-emerald-600 group-hover:translate-x-1 transition-transform">
+                    <span>Billing & Printable Receipts</span>
+                    <i class="fa-solid fa-arrow-right ml-2"></i>
+                </div>
+            </a>
+
+            <!-- Card 4: Reports & Analytics -->
+            <a href="reports.html" class="group bg-white p-6 rounded-3xl border border-slate-100 shadow-sm hover:shadow-xl hover:border-amber-200 transition-all flex flex-col justify-between">
+                <div>
+                    <div class="w-12 h-12 bg-amber-500 rounded-2xl text-white flex items-center justify-center text-xl mb-4 group-hover:scale-110 transition-transform">
+                        <i class="fa-solid fa-chart-line"></i>
+                    </div>
+                    <h3 class="text-base font-bold text-slate-800 group-hover:text-amber-600 transition-colors">4. Decision-Making Reports</h3>
+                    <p class="text-xs text-slate-500 mt-2 leading-relaxed">
+                        Management analytics, daily revenue breakdown, treatment distribution, dentist workloads, and live Observer notification alert logs.
+                    </p>
+                </div>
+                <div class="mt-6 flex items-center text-xs font-bold text-amber-600 group-hover:translate-x-1 transition-transform">
+                    <span>View Analytics Reports</span>
+                    <i class="fa-solid fa-arrow-right ml-2"></i>
+                </div>
+            </a>
+
+            <!-- Card 5: Help Section -->
+            <a href="help.html" class="group bg-white p-6 rounded-3xl border border-slate-100 shadow-sm hover:shadow-xl hover:border-indigo-200 transition-all flex flex-col justify-between">
+                <div>
+                    <div class="w-12 h-12 bg-indigo-500 rounded-2xl text-white flex items-center justify-center text-xl mb-4 group-hover:scale-110 transition-transform">
+                        <i class="fa-solid fa-circle-question"></i>
+                    </div>
+                    <h3 class="text-base font-bold text-slate-800 group-hover:text-indigo-600 transition-colors">5. Staff Help & Manual</h3>
+                    <p class="text-xs text-slate-500 mt-2 leading-relaxed">
+                        Step-by-step operational instructions for new clinic staff on navigating the 3-tier system error-free.
+                    </p>
+                </div>
+                <div class="mt-6 flex items-center text-xs font-bold text-indigo-600 group-hover:translate-x-1 transition-transform">
+                    <span>Read Help Guide</span>
+                    <i class="fa-solid fa-arrow-right ml-2"></i>
+                </div>
+            </a>
+
+
+
+        </div>
+
+        <!-- Recent Appointments Table -->
+        <div class="bg-white rounded-3xl border border-slate-100 shadow-sm p-6">
+            <div class="flex justify-between items-center mb-6">
+                <div>
+                    <h3 class="text-lg font-bold text-slate-800">Current Clinic Appointments</h3>
+                    <p class="text-xs text-slate-500 mt-0.5">Real-time schedule persisted in 3-tier repository</p>
+                </div>
+                <a href="appointment-details.html" class="text-xs font-bold text-teal-600 hover:text-teal-700">View All Records &rarr;</a>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="border-b border-slate-100 text-xs font-semibold text-slate-400 uppercase tracking-wider">
+                            <th class="pb-3 px-4">Appt #</th>
+                            <th class="pb-3 px-4">Patient Name</th>
+                            <th class="pb-3 px-4">Dentist Name</th>
+                            <th class="pb-3 px-4">Treatment</th>
+                            <th class="pb-3 px-4">Date & Time</th>
+                            <th class="pb-3 px-4">Total Cost</th>
+                            <th class="pb-3 px-4 text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="appointments-tbody" class="divide-y divide-slate-50 text-xs text-slate-700 font-medium">
+                        <!-- Loaded dynamically via REST API -->
+                        <tr><td colspan="7" class="py-8 text-center text-slate-400"><i class="fa-solid fa-spinner animate-spin text-teal-500 mr-2"></i> Loading clinic appointments...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Shared Footer -->
+    <div id="shared-footer"></div>
+
+    <!-- Page Logic -->
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                const res = await fetch('/api/appointments');
+                const data = await res.json();
+                const tbody = document.getElementById('appointments-tbody');
+
+                if (Array.isArray(data) && data.length > 0) {
+                    document.getElementById('kpi-today').textContent = data.length;
+                    
+                    let totalRev = 0;
+                    tbody.innerHTML = data.map(app => {
+                        totalRev += app.totalCost;
+                        return `
+                        <tr class="hover:bg-slate-50/80 transition-colors">
+                            <td class="py-3.5 px-4 font-bold text-teal-700">${app.appointmentNumber}</td>
+                            <td class="py-3.5 px-4 font-semibold text-slate-900">${app.patient.fullName}</td>
+                            <td class="py-3.5 px-4 text-slate-600">${app.dentistName}</td>
+                            <td class="py-3.5 px-4"><span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-sky-50 text-sky-700 border border-sky-100">${app.treatmentType}</span></td>
+                            <td class="py-3.5 px-4 text-slate-500">${app.appointmentDate} @ ${app.appointmentTime}</td>
+                            <td class="py-3.5 px-4 font-bold text-emerald-600">LKR ${app.totalCost.toLocaleString('en-US', {minimumFractionDigits:2})}</td>
+                            <td class="py-3.5 px-4 text-right space-x-2">
+                                <a href="appointment-details.html?number=${app.appointmentNumber}" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-[11px] font-bold transition-all">Details</a>
+                                <a href="billing.html?number=${app.appointmentNumber}" class="px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded-xl text-[11px] font-bold transition-all">Print Bill</a>
+                            </td>
+                        </tr>
+                        `;
+                    }).join('');
+
+                    document.getElementById('kpi-revenue').textContent = `LKR ${totalRev.toLocaleString('en-US', {minimumFractionDigits:2})}`;
+                }
+            } catch (err) {
+                console.error("Dashboard API error:", err);
+            }
+        });
+    </script>
+    <script src="shared-nav.js"></script>
+</body>
+</html>
