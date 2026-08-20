@@ -16,8 +16,9 @@ public class DBConnectionManager {
     private static final Logger LOGGER = Logger.getLogger(DBConnectionManager.class.getName());
     private static DBConnectionManager instance;
 
-    // Default WAMP MySQL Configuration
-    private String dbUrl = "jdbc:mysql://localhost:3306/sunrise_dental_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC";
+    // Default WAMP MySQL Configuration (sunrise_dental_clinic)
+    private String dbUrl = "jdbc:mysql://localhost:3306/sunrise_dental_clinic?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC";
+    private String fallbackDbUrl = "jdbc:mysql://localhost:3306/sunrise_dental_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC";
     private String dbUser = "root";
     private String dbPassword = "";
 
@@ -46,17 +47,28 @@ public class DBConnectionManager {
     }
 
     /**
-     * Get Connection to WAMP MySQL Server
+     * Get Connection to WAMP MySQL Server (tries sunrise_dental_clinic first, then sunrise_dental_db)
      */
     public Connection getConnection() throws SQLException {
-        return DriverManager.getConnection(dbUrl, dbUser, dbPassword);
+        try {
+            return DriverManager.getConnection(dbUrl, dbUser, dbPassword);
+        } catch (SQLException e) {
+            if (fallbackDbUrl != null && !fallbackDbUrl.isEmpty()) {
+                try {
+                    return DriverManager.getConnection(fallbackDbUrl, dbUser, dbPassword);
+                } catch (SQLException ignored) {
+                    // throw original exception
+                }
+            }
+            throw e;
+        }
     }
 
     public boolean isMySQLAvailable() {
         try (Connection conn = getConnection()) {
             return conn != null && !conn.isClosed();
         } catch (SQLException e) {
-            LOGGER.log(Level.INFO, "[DBConnectionManager] WAMP MySQL server not connected on localhost:3306. System will use active in-memory session persistence.");
+            LOGGER.log(Level.INFO, "[DBConnectionManager] WAMP MySQL server not connected on localhost:3306 (tried sunrise_dental_clinic & sunrise_dental_db). System will use active in-memory session persistence.");
             return false;
         }
     }

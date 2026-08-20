@@ -24,11 +24,41 @@ import java.util.*;
  */
 public class ClinicServer {
 
-    private static final int PORT = 8080;
+    private static final int DEFAULT_PORT = 8080;
     private static final ClinicManagementFacade facade = new ClinicManagementFacade();
 
     public static void main(String[] args) throws IOException {
-        HttpServer server = HttpServer.create(new InetSocketAddress(PORT), 0);
+        int port = DEFAULT_PORT;
+        if (args != null && args.length > 0) {
+            try {
+                port = Integer.parseInt(args[0]);
+            } catch (NumberFormatException ignored) {}
+        } else if (System.getProperty("server.port") != null) {
+            try {
+                port = Integer.parseInt(System.getProperty("server.port"));
+            } catch (NumberFormatException ignored) {}
+        } else if (System.getenv("PORT") != null) {
+            try {
+                port = Integer.parseInt(System.getenv("PORT"));
+            } catch (NumberFormatException ignored) {}
+        }
+
+        HttpServer server = null;
+        int maxAttempts = 10;
+        for (int i = 0; i < maxAttempts; i++) {
+            try {
+                server = HttpServer.create(new InetSocketAddress(port), 0);
+                break;
+            } catch (java.net.BindException e) {
+                System.out.println("Port " + port + " is in use, trying port " + (port + 1) + "...");
+                port++;
+            }
+        }
+
+        if (server == null) {
+            System.err.println("Failed to bind to any available port after " + maxAttempts + " attempts.");
+            System.exit(1);
+        }
 
         // API Contexts
         server.createContext("/api/login", new LoginHandler());
@@ -45,7 +75,7 @@ public class ClinicServer {
         server.setExecutor(null); // default executor
         System.out.println("==================================================================");
         System.out.println("  SUNRISE DENTAL CLINIC - 3-TIER JAVA APPLICATION SERVER STARTED  ");
-        System.out.println("  Server running at: http://localhost:" + PORT + "/login.html");
+        System.out.println("  Server running at: http://localhost:" + port + "/login.html");
         System.out.println("==================================================================");
         server.start();
     }

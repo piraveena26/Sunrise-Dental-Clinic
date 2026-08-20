@@ -1,11 +1,11 @@
 -- ===================================================================
 -- SUNRISE DENTAL CLINIC DATABASE SCHEMA FOR WAMP / PHPMYADMIN
--- Database: sunrise_dental_db
+-- Database: sunrise_dental_clinic
 -- Engine: InnoDB | MySQL 8.0+ / MariaDB
 -- ===================================================================
 
-CREATE DATABASE IF NOT EXISTS `sunrise_dental_db` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-USE `sunrise_dental_db`;
+CREATE DATABASE IF NOT EXISTS `sunrise_dental_clinic` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE `sunrise_dental_clinic`;
 
 -- -------------------------------------------------------------------
 -- 1. USERS TABLE (Supports Admin, Patient, Doctor, Cashier)
