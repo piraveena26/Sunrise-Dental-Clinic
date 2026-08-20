@@ -25,9 +25,9 @@ CREATE TABLE `users` (
 -- Seed Default Accounts for all 4 Roles
 INSERT INTO `users` (`username`, `password`, `full_name`, `email`, `phone`, `role`) VALUES
 ('admin', 'admin123', 'System Administrator', 'admin@sunrisedental.com', '+94770000000', 'ADMIN'),
-('doctor1', 'doctor123', 'Dr. Chaminda Silva', 'chaminda@sunrisedental.com', '+94771112233', 'DOCTOR'),
-('doctor2', 'doctor123', 'Dr. Nimali Fernando', 'nimali@sunrisedental.com', '+94772223344', 'DOCTOR'),
-('cashier', 'cashier123', 'Kasun Perera (Cashier)', 'cashier@sunrisedental.com', '+94773334455', 'CASHIER'),
+('doctor1', 'doctor123', 'Dr. Rajendra', 'rajendra@sunrisedental.com', '+94771112233', 'DOCTOR'),
+('doctor2', 'doctor123', 'Dr. Kobishangar', 'kobishangar@sunrisedental.com', '+94772223344', 'DOCTOR'),
+('cashier', 'cashier123', 'Krishnakumar (Cashier)', 'krishnakumar@sunrisedental.com', '+94773334455', 'CASHIER'),
 ('patient1', 'patient123', 'Piraveena Krishnakumar', 'piraveena@gmail.com', '+94765476542', 'PATIENT');
 
 -- -------------------------------------------------------------------
@@ -68,8 +68,8 @@ CREATE TABLE `doctors` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 INSERT INTO `doctors` (`user_id`, `name`, `specialization`, `phone`, `email`) VALUES
-(2, 'Dr. Chaminda Silva', 'General & Cosmetic Dentistry', '+94771112233', 'chaminda@sunrisedental.com'),
-(3, 'Dr. Nimali Fernando', 'Orthodontics & Root Canal Specialist', '+94772223344', 'nimali@sunrisedental.com');
+(2, 'Dr. Rajendra', 'General & Cosmetic Dentistry', '+94771112233', 'rajendra@sunrisedental.com'),
+(3, 'Dr. Kobishangar', 'Orthodontics & Root Canal Specialist', '+94772223344', 'kobishangar@sunrisedental.com');
 
 -- -------------------------------------------------------------------
 -- 4. DOCTOR SCHEDULES & LEAVE TABLE (For Doctor Availability Slot Blocking)
@@ -113,8 +113,8 @@ CREATE TABLE `appointments` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 INSERT INTO `appointments` (`appointment_number`, `patient_name`, `patient_phone`, `patient_email`, `patient_nic`, `patient_age`, `gender`, `dentist_name`, `treatment_type`, `appointment_date`, `appointment_time`, `base_fee`, `total_fee`, `status`) VALUES
-('APT-1001', 'Piraveena Krishnakumar', '+94765476542', 'piraveena@gmail.com', '199854321098', 26, 'Female', 'Dr. Chaminda Silva', 'Routine Checkup', '2026-08-20', '09:00', 3000.00, 5200.00, 'CONFIRMED'),
-('APT-1002', 'Saman Kumara', '+94718889900', 'saman@gmail.com', '198512345678', 39, 'Male', 'Dr. Nimali Fernando', 'Teeth Whitening', '2026-08-21', '10:30', 8000.00, 11500.00, 'CONFIRMED');
+('APT-1001', 'Piraveena Krishnakumar', '+94765476542', 'piraveena@gmail.com', '199854321098', 26, 'Female', 'Dr. Rajendra', 'Routine Checkup', '2026-08-20', '09:00', 3000.00, 5200.00, 'CONFIRMED'),
+('APT-1002', 'Saman Kumara', '+94718889900', 'saman@gmail.com', '198512345678', 39, 'Male', 'Dr. Kobishangar', 'Teeth Whitening', '2026-08-21', '10:30', 8000.00, 11500.00, 'CONFIRMED');
 
 -- -------------------------------------------------------------------
 -- 6. APPOINTMENT ADD-ONS TABLE (Decorator Pattern Persistence)

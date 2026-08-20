@@ -109,7 +109,8 @@ public class DoctorScheduleDAO {
     }
 
     /**
-     * Retrieve all active Doctors dynamically from the MySQL Database
+     * Retrieve all active Doctors dynamically from the MySQL Database.
+     * No hardcoded names — always reads from the doctors table.
      */
     public List<com.sunrisedental.model.Doctor> getAllDoctors() {
         List<com.sunrisedental.model.Doctor> list = new ArrayList<>();
@@ -129,14 +130,10 @@ public class DoctorScheduleDAO {
                 ));
             }
         } catch (SQLException e) {
-            LOGGER.log(Level.INFO, "[DoctorScheduleDAO] Doctors query fallback: " + e.getMessage());
+            LOGGER.log(Level.SEVERE, "[DoctorScheduleDAO] Error fetching doctors from database", e);
         }
 
-        // Fallback default list if database is empty or offline
-        if (list.isEmpty()) {
-            list.add(new com.sunrisedental.model.Doctor(1, 2, "Dr. Chaminda Silva", "General & Cosmetic Dentistry", "+94771112233", "chaminda@sunrisedental.com"));
-            list.add(new com.sunrisedental.model.Doctor(2, 3, "Dr. Nimali Fernando", "Orthodontics & Root Canal Specialist", "+94772223344", "nimali@sunrisedental.com"));
-        }
+        // Always return whatever is in the database — no hardcoded defaults
         return list;
     }
 }
