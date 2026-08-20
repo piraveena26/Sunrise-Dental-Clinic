@@ -1,5 +1,8 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ page import="com.sunrisedental.model.User" %>
+<%@ page import="com.sunrisedental.dao.AppointmentDAO" %>
+<%@ page import="com.sunrisedental.model.Appointment" %>
+<%@ page import="java.util.List" %>
 <%
     User currentUser = (User) session.getAttribute("user");
     if (currentUser == null) {
@@ -11,6 +14,9 @@
         response.sendRedirect("dashboard.jsp");
         return;
     }
+
+    AppointmentDAO appointmentDAO = new AppointmentDAO();
+    List<Appointment> appointments = appointmentDAO.getAllAppointments();
 %>
 <!DOCTYPE html>
 <html lang="en">
@@ -73,40 +79,47 @@
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100 text-xs font-semibold text-slate-700">
-                        <tr class="hover:bg-slate-50 transition-colors">
-                            <td class="py-4 font-bold text-purple-600">INV-5001</td>
-                            <td class="py-4 font-extrabold text-teal-600">APT-1001</td>
-                            <td class="py-4 font-bold text-slate-800">Piraveena Krishnakumar</td>
-                            <td class="py-4">LKR 3,000.00</td>
-                            <td class="py-4">LKR 2,200.00</td>
-                            <td class="py-4">LKR 500.00</td>
-                            <td class="py-4 font-extrabold text-slate-900">LKR 5,700.00</td>
-                            <td class="py-4"><span class="px-3 py-1 bg-emerald-50 text-emerald-700 rounded-full text-[10px] font-extrabold">PAID (Card)</span></td>
-                            <td class="py-4 text-right">
-                                <button onclick="printReceipt('INV-5001', 'APT-1001', 'Piraveena Krishnakumar', 'Routine Checkup', '5700.00', 'PAID (Card)')" class="px-3 py-1.5 bg-teal-50 hover:bg-teal-100 text-teal-700 font-bold rounded-xl text-[11px] transition-all">
-                                    <i class="fa-solid fa-print mr-1"></i> Print Receipt
-                                </button>
+                        <% if (appointments.isEmpty()) { %>
+                        <tr>
+                            <td colspan="9" class="py-8 text-center text-slate-400 font-bold">
+                                No appointments available for billing.
                             </td>
                         </tr>
-
-                        <tr class="hover:bg-slate-50 transition-colors">
-                            <td class="py-4 font-bold text-purple-600">INV-5002</td>
-                            <td class="py-4 font-extrabold text-teal-600">APT-1002</td>
-                            <td class="py-4 font-bold text-slate-800">Saman Kumara</td>
-                            <td class="py-4">LKR 8,000.00</td>
-                            <td class="py-4">LKR 3,500.00</td>
-                            <td class="py-4">LKR 500.00</td>
-                            <td class="py-4 font-extrabold text-slate-900">LKR 12,000.00</td>
-                            <td class="py-4"><span class="px-3 py-1 bg-amber-50 text-amber-700 rounded-full text-[10px] font-extrabold">UNPAID</span></td>
+                        <% } else { 
+                            int invIdx = 5001;
+                            for (Appointment a : appointments) {
+                                String pName = a.getPatient() != null ? a.getPatient().getFullName() : "Patient";
+                                double base = a.getBaseCost();
+                                double total = a.getTotalCost();
+                                double regFee = 500.0;
+                                double addonsFee = Math.max(0, total - base);
+                                double grandTotal = total + regFee;
+                                String invNo = "INV-" + (invIdx++);
+                                String status = a.getStatus();
+                                String payStatus = "COMPLETED".equalsIgnoreCase(status) ? "PAID (Card)" : "UNPAID";
+                                String payClass = "PAID (Card)".equals(payStatus) ? "bg-emerald-50 text-emerald-700" : "bg-amber-50 text-amber-700";
+                        %>
+                        <tr class="hover:bg-slate-50 transition-colors" id="row-<%= invNo %>">
+                            <td class="py-4 font-bold text-purple-600"><%= invNo %></td>
+                            <td class="py-4 font-extrabold text-teal-600"><%= a.getAppointmentNumber() %></td>
+                            <td class="py-4 font-bold text-slate-800"><%= pName %></td>
+                            <td class="py-4">LKR <%= String.format("%,.2f", base) %></td>
+                            <td class="py-4">LKR <%= String.format("%,.2f", addonsFee) %></td>
+                            <td class="py-4">LKR <%= String.format("%,.2f", regFee) %></td>
+                            <td class="py-4 font-extrabold text-slate-900">LKR <%= String.format("%,.2f", grandTotal) %></td>
+                            <td class="py-4">
+                                <span id="status-<%= invNo %>" class="px-3 py-1 rounded-full text-[10px] font-extrabold <%= payClass %>"><%= payStatus %></span>
+                            </td>
                             <td class="py-4 text-right space-x-1">
-                                <button onclick="markAsPaid('INV-5002')" class="px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-bold rounded-xl text-[11px] transition-all">
-                                    <i class="fa-solid fa-check mr-1"></i> Mark Paid
+                                <button onclick="markAsPaid('<%= invNo %>')" class="px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-bold rounded-xl text-[11px] transition-all">
+                                    <i class="fa-solid fa-check mr-1"></i> Paid
                                 </button>
-                                <button onclick="printReceipt('INV-5002', 'APT-1002', 'Saman Kumara', 'Teeth Whitening', '12000.00', 'UNPAID')" class="px-3 py-1.5 bg-teal-50 hover:bg-teal-100 text-teal-700 font-bold rounded-xl text-[11px] transition-all">
+                                <button onclick="printReceipt('<%= invNo %>', '<%= a.getAppointmentNumber() %>', '<%= pName %>', '<%= a.getTreatmentType() %>', '<%= String.format("%.2f", grandTotal) %>', document.getElementById('status-<%= invNo %>').innerText)" class="px-3 py-1.5 bg-teal-50 hover:bg-teal-100 text-teal-700 font-bold rounded-xl text-[11px] transition-all">
                                     <i class="fa-solid fa-print mr-1"></i> Receipt
                                 </button>
                             </td>
                         </tr>
+                        <% } } %>
                     </tbody>
                 </table>
             </div>
@@ -129,16 +142,17 @@
                 <div class="flex justify-between"><span>Appointment No:</span><span id="rcptApt" class="font-extrabold text-teal-600"></span></div>
                 <div class="flex justify-between"><span>Patient Name:</span><span id="rcptPatient" class="font-bold text-slate-900"></span></div>
                 <div class="flex justify-between"><span>Treatment:</span><span id="rcptTreatment"></span></div>
-                <div class="flex justify-between"><span>Payment Status:</span><span id="rcptStatus" class="font-extrabold text-emerald-600"></span></div>
-                <hr class="border-slate-100 my-2">
-                <div class="flex justify-between text-base font-black text-slate-900"><span>Grand Total:</span><span id="rcptTotal" class="text-teal-600"></span></div>
+                <div class="flex justify-between border-t border-slate-100 pt-2 text-sm font-black text-slate-900">
+                    <span>Total Paid:</span><span id="rcptTotal" class="text-teal-600"></span>
+                </div>
+                <div class="flex justify-between"><span>Status:</span><span id="rcptStatus" class="text-emerald-600 font-bold"></span></div>
             </div>
 
-            <div class="pt-4 border-t border-slate-100 flex space-x-3 print:hidden">
+            <div class="mt-6 flex space-x-3">
                 <button onclick="window.print()" class="flex-1 py-3 bg-teal-600 text-white font-bold rounded-2xl text-xs uppercase tracking-wider hover:bg-teal-700 transition-all">
-                    <i class="fa-solid fa-print mr-1"></i> Print Now
+                    <i class="fa-solid fa-print mr-1"></i> Print
                 </button>
-                <button onclick="document.getElementById('receiptModal').classList.add('hidden')" class="px-4 py-3 bg-slate-100 text-slate-700 font-bold rounded-2xl text-xs transition-all">
+                <button onclick="document.getElementById('receiptModal').classList.add('hidden')" class="flex-1 py-3 bg-slate-100 text-slate-700 font-bold rounded-2xl text-xs uppercase tracking-wider hover:bg-slate-200 transition-all">
                     Close
                 </button>
             </div>
@@ -151,9 +165,12 @@
     </footer>
 
     <script>
-        function markAsPaid(inv) {
-            alert("Invoice " + inv + " payment marked as PAID (Cash).");
-            window.location.reload();
+        function markAsPaid(invNo) {
+            const el = document.getElementById('status-' + invNo);
+            if (el) {
+                el.innerText = 'PAID (Cash)';
+                el.className = 'px-3 py-1 rounded-full text-[10px] font-extrabold bg-emerald-50 text-emerald-700';
+            }
         }
 
         function printReceipt(inv, apt, patient, treatment, total, status) {
@@ -161,8 +178,8 @@
             document.getElementById('rcptApt').innerText = apt;
             document.getElementById('rcptPatient').innerText = patient;
             document.getElementById('rcptTreatment').innerText = treatment;
+            document.getElementById('rcptTotal').innerText = 'LKR ' + parseFloat(total).toLocaleString() + '.00';
             document.getElementById('rcptStatus').innerText = status;
-            document.getElementById('rcptTotal').innerText = "LKR " + parseFloat(total).toLocaleString() + ".00";
             document.getElementById('receiptModal').classList.remove('hidden');
         }
     </script>

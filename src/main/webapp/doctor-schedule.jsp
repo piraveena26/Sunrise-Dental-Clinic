@@ -17,6 +17,7 @@
 
     DoctorScheduleDAO scheduleDAO = new DoctorScheduleDAO();
     List<DoctorSchedule> schedules = scheduleDAO.getAllSchedules();
+    List<com.sunrisedental.model.Doctor> doctorsList = scheduleDAO.getAllDoctors();
 %>
 <!DOCTYPE html>
 <html lang="en">
@@ -66,8 +67,9 @@
                     <div>
                         <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Select Doctor</label>
                         <select name="doctorId" class="w-full px-4 py-3 rounded-2xl border border-slate-200 text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-500 bg-slate-50">
-                            <option value="1">Dr. Chaminda Silva (General Dentistry)</option>
-                            <option value="2">Dr. Nimali Fernando (Orthodontics & Root Canal)</option>
+                            <% for (com.sunrisedental.model.Doctor doc : doctorsList) { %>
+                            <option value="<%= doc.getId() %>"><%= doc.getName() %> (<%= doc.getSpecialization() %>)</option>
+                            <% } %>
                         </select>
                     </div>
 

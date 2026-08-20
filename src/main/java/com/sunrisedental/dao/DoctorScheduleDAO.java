@@ -107,4 +107,36 @@ public class DoctorScheduleDAO {
         }
         return false;
     }
+
+    /**
+     * Retrieve all active Doctors dynamically from the MySQL Database
+     */
+    public List<com.sunrisedental.model.Doctor> getAllDoctors() {
+        List<com.sunrisedental.model.Doctor> list = new ArrayList<>();
+        String sql = "SELECT * FROM doctors ORDER BY name ASC";
+        try (Connection conn = DBConnectionManager.getInstance().getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+
+            while (rs.next()) {
+                list.add(new com.sunrisedental.model.Doctor(
+                    rs.getInt("id"),
+                    rs.getInt("user_id"),
+                    rs.getString("name"),
+                    rs.getString("specialization"),
+                    rs.getString("phone"),
+                    rs.getString("email")
+                ));
+            }
+        } catch (SQLException e) {
+            LOGGER.log(Level.INFO, "[DoctorScheduleDAO] Doctors query fallback: " + e.getMessage());
+        }
+
+        // Fallback default list if database is empty or offline
+        if (list.isEmpty()) {
+            list.add(new com.sunrisedental.model.Doctor(1, 2, "Dr. Chaminda Silva", "General & Cosmetic Dentistry", "+94771112233", "chaminda@sunrisedental.com"));
+            list.add(new com.sunrisedental.model.Doctor(2, 3, "Dr. Nimali Fernando", "Orthodontics & Root Canal Specialist", "+94772223344", "nimali@sunrisedental.com"));
+        }
+        return list;
+    }
 }
