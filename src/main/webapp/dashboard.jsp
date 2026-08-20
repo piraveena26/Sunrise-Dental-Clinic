@@ -1,5 +1,10 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ page import="com.sunrisedental.model.User" %>
+<%@ page import="com.sunrisedental.dao.UserDAO" %>
+<%@ page import="com.sunrisedental.model.Patient" %>
+<%@ page import="com.sunrisedental.dao.AppointmentDAO" %>
+<%@ page import="com.sunrisedental.model.Appointment" %>
+<%@ page import="java.util.List" %>
 <%
     User currentUser = (User) session.getAttribute("user");
     if (currentUser == null) {
@@ -8,6 +13,30 @@
     }
     String userRole = currentUser.getRole();
     String fullName = currentUser.getFullName();
+
+    UserDAO userDAO = new UserDAO();
+    AppointmentDAO appointmentDAO = new AppointmentDAO();
+
+    Patient patientProfile = null;
+    int myAppointmentCount = 0;
+    boolean isPatient = "PATIENT".equalsIgnoreCase(userRole);
+
+    if (isPatient) {
+        patientProfile = userDAO.getPatientByUserId(currentUser.getId());
+        if (patientProfile == null && currentUser.getUsername() != null) {
+            patientProfile = userDAO.getPatientByUsername(currentUser.getUsername());
+        }
+        if (patientProfile == null) {
+            patientProfile = userDAO.getPatientByEmailOrPhone(currentUser.getEmail(), currentUser.getPhone());
+        }
+
+        String pEmail = patientProfile != null ? patientProfile.getEmail() : currentUser.getEmail();
+        String pNic = patientProfile != null ? patientProfile.getNicPassport() : "";
+        String pPhone = patientProfile != null ? patientProfile.getContactNumber() : currentUser.getPhone();
+
+        List<Appointment> myApts = appointmentDAO.getAppointmentsForPatient(pEmail, pNic, pPhone, fullName);
+        myAppointmentCount = myApts.size();
+    }
 %>
 <!DOCTYPE html>
 <html lang="en">
@@ -39,7 +68,11 @@
                     </span>
                     <h1 class="text-3xl font-black tracking-tight">Welcome back, <%= fullName %>!</h1>
                     <p class="text-xs text-teal-100 mt-2 max-w-xl leading-relaxed font-medium">
-                        Sunrise Dental Clinic Management System. Access authorized tools, appointments, leave scheduling, and billing below.
+                        <% if (isPatient) { %>
+                            Access your personal dental appointments, schedule new treatments, view itemized bills, and receive instant observer notification alerts.
+                        <% } else { %>
+                            Sunrise Dental Clinic Management System. Access authorized tools, appointments, leave scheduling, and billing below.
+                        <% } %>
                     </p>
                 </div>
                 <div>
@@ -60,9 +93,15 @@
                     <i class="fa-solid fa-calendar-check"></i>
                 </div>
                 <div>
-                    <span class="text-xs font-medium text-slate-400 uppercase tracking-wider block">Today's Queue</span>
-                    <span class="text-2xl font-extrabold text-slate-800">12 Active</span>
-                    <span class="text-xs text-emerald-600 font-semibold block mt-0.5"><i class="fa-solid fa-arrow-up"></i> 100% Slot Managed</span>
+                    <span class="text-xs font-medium text-slate-400 uppercase tracking-wider block">
+                        <%= isPatient ? "My Bookings" : "Today's Queue" %>
+                    </span>
+                    <span class="text-2xl font-extrabold text-slate-800">
+                        <%= isPatient ? myAppointmentCount + " Active" : "12 Active" %>
+                    </span>
+                    <span class="text-xs text-emerald-600 font-semibold block mt-0.5">
+                        <i class="fa-solid fa-check mr-1"></i> <%= isPatient ? "Personalized View" : "100% Slot Managed" %>
+                    </span>
                 </div>
             </div>
 
@@ -82,8 +121,12 @@
                     <i class="fa-solid fa-receipt"></i>
                 </div>
                 <div>
-                    <span class="text-xs font-medium text-slate-400 uppercase tracking-wider block">Billing Status</span>
-                    <span class="text-2xl font-extrabold text-slate-800">Cashier Portal</span>
+                    <span class="text-xs font-medium text-slate-400 uppercase tracking-wider block">
+                        <%= isPatient ? "Decorator Pricing" : "Billing Status" %>
+                    </span>
+                    <span class="text-2xl font-extrabold text-slate-800">
+                        <%= isPatient ? "Live Add-ons" : "Cashier Portal" %>
+                    </span>
                     <span class="text-xs text-purple-600 font-semibold block mt-0.5">Itemized Add-ons & Tax</span>
                 </div>
             </div>
@@ -132,13 +175,15 @@
                     <div class="w-12 h-12 bg-emerald-500 rounded-2xl text-white flex items-center justify-center text-xl mb-4 group-hover:scale-110 transition-transform">
                         <i class="fa-solid fa-file-invoice"></i>
                     </div>
-                    <h3 class="text-base font-bold text-slate-800 group-hover:text-teal-600 transition-colors">View Appointments</h3>
+                    <h3 class="text-base font-bold text-slate-800 group-hover:text-teal-600 transition-colors">
+                        <%= isPatient ? "My Appointments" : "View All Appointments" %>
+                    </h3>
                     <p class="text-xs text-slate-500 mt-2 leading-relaxed">
-                        Search and inspect active appointments, check appointment status, and cancel appointments with Memento state backup.
+                        <%= isPatient ? "Inspect your registered appointments, check status, and cancel bookings if necessary." : "Search and inspect active appointments, check appointment status, and cancel appointments with Memento state backup." %>
                     </p>
                 </div>
                 <div class="mt-6 flex items-center text-xs font-bold text-emerald-600 group-hover:translate-x-1 transition-transform">
-                    <span>View Appointments</span>
+                    <span><%= isPatient ? "View My Appointments" : "View Appointments" %></span>
                     <i class="fa-solid fa-arrow-right ml-2"></i>
                 </div>
             </a>

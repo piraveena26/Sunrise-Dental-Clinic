@@ -110,4 +110,78 @@ public class UserDAO {
         }
         return false;
     }
+
+    /**
+     * Fetch Patient profile associated with a User ID
+     */
+    public com.sunrisedental.model.Patient getPatientByUserId(int userId) {
+        String sql = "SELECT * FROM patients WHERE user_id = ?";
+        try (Connection conn = DBConnectionManager.getInstance().getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, userId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return mapResultSetToPatient(rs);
+                }
+            }
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "[UserDAO] Error retrieving patient by user_id: " + userId, e);
+        }
+        return null;
+    }
+
+    /**
+     * Fetch Patient profile by username
+     */
+    public com.sunrisedental.model.Patient getPatientByUsername(String username) {
+        String sql = "SELECT p.* FROM patients p JOIN users u ON p.user_id = u.id WHERE u.username = ?";
+        try (Connection conn = DBConnectionManager.getInstance().getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, username);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return mapResultSetToPatient(rs);
+                }
+            }
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "[UserDAO] Error retrieving patient by username: " + username, e);
+        }
+        return null;
+    }
+
+    /**
+     * Fetch Patient profile by email or phone
+     */
+    public com.sunrisedental.model.Patient getPatientByEmailOrPhone(String email, String phone) {
+        String sql = "SELECT * FROM patients WHERE (email = ? AND email IS NOT NULL AND email != '') OR (phone = ? AND phone IS NOT NULL AND phone != '')";
+        try (Connection conn = DBConnectionManager.getInstance().getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, email != null ? email : "");
+            stmt.setString(2, phone != null ? phone : "");
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return mapResultSetToPatient(rs);
+                }
+            }
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "[UserDAO] Error retrieving patient by email/phone", e);
+        }
+        return null;
+    }
+
+    private com.sunrisedental.model.Patient mapResultSetToPatient(ResultSet rs) throws SQLException {
+        int id = rs.getInt("id");
+        int userId = rs.getInt("user_id");
+        String nic = rs.getString("nic_passport");
+        String name = rs.getString("full_name");
+        String email = rs.getString("email");
+        String phone = rs.getString("phone");
+        int age = rs.getInt("age");
+        String gender = rs.getString("gender");
+        String address = rs.getString("address");
+        String medical = rs.getString("medical_history");
+        String pId = "P-" + (100 + id);
+
+        return new com.sunrisedental.model.Patient(id, userId, pId, nic, name, email, phone, age, gender, address, medical);
+    }
 }

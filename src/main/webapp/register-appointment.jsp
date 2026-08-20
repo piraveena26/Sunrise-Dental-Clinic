@@ -1,5 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ page import="com.sunrisedental.model.User" %>
+<%@ page import="com.sunrisedental.dao.UserDAO" %>
+<%@ page import="com.sunrisedental.model.Patient" %>
 <%@ page import="com.sunrisedental.dao.DoctorScheduleDAO" %>
 <%@ page import="com.sunrisedental.model.DoctorSchedule" %>
 <%@ page import="java.util.List" %>
@@ -14,6 +16,25 @@
         response.sendRedirect("dashboard.jsp");
         return;
     }
+
+    UserDAO userDAO = new UserDAO();
+    Patient patientProfile = userDAO.getPatientByUserId(currentUser.getId());
+    if (patientProfile == null && currentUser.getUsername() != null) {
+        patientProfile = userDAO.getPatientByUsername(currentUser.getUsername());
+    }
+    if (patientProfile == null) {
+        patientProfile = userDAO.getPatientByEmailOrPhone(currentUser.getEmail(), currentUser.getPhone());
+    }
+
+    String nameVal = (patientProfile != null && patientProfile.getFullName() != null && !patientProfile.getFullName().isEmpty()) 
+                     ? patientProfile.getFullName() : (currentUser.getFullName() != null ? currentUser.getFullName() : "");
+    String phoneVal = (patientProfile != null && patientProfile.getContactNumber() != null && !patientProfile.getContactNumber().isEmpty()) 
+                     ? patientProfile.getContactNumber() : (currentUser.getPhone() != null ? currentUser.getPhone() : "");
+    String emailVal = (patientProfile != null && patientProfile.getEmail() != null && !patientProfile.getEmail().isEmpty()) 
+                     ? patientProfile.getEmail() : (currentUser.getEmail() != null ? currentUser.getEmail() : "");
+    String nicVal = (patientProfile != null && patientProfile.getNicPassport() != null) ? patientProfile.getNicPassport() : "";
+    int ageVal = (patientProfile != null && patientProfile.getAge() > 0) ? patientProfile.getAge() : 0;
+    String genderVal = (patientProfile != null && patientProfile.getGender() != null) ? patientProfile.getGender() : "Female";
 
     DoctorScheduleDAO scheduleDAO = new DoctorScheduleDAO();
     List<DoctorSchedule> doctorSchedules = scheduleDAO.getAllSchedules();
@@ -66,30 +87,31 @@
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Patient Full Name *</label>
-                            <input type="text" id="patientName" required value="<%= currentUser.getFullName() %>" class="w-full px-4 py-3 rounded-2xl border border-slate-200 text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-500 bg-slate-50">
+                            <input type="text" id="patientName" required value="<%= nameVal %>" placeholder="e.g. Full Name" class="w-full px-4 py-3 rounded-2xl border border-slate-200 text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-500 bg-slate-50">
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Phone Number *</label>
-                            <input type="text" id="patientPhone" required value="<%= currentUser.getPhone() != null ? currentUser.getPhone() : "+94765476542" %>" class="w-full px-4 py-3 rounded-2xl border border-slate-200 text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-500 bg-slate-50">
+                            <input type="text" id="patientPhone" required value="<%= phoneVal %>" placeholder="+94 77 123 4567" class="w-full px-4 py-3 rounded-2xl border border-slate-200 text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-500 bg-slate-50">
                         </div>
                     </div>
 
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                         <div>
                             <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Email Address *</label>
-                            <input type="email" id="patientEmail" required value="<%= currentUser.getEmail() %>" class="w-full px-4 py-3 rounded-2xl border border-slate-200 text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-500 bg-slate-50">
+                            <input type="email" id="patientEmail" required value="<%= emailVal %>" placeholder="name@example.com" class="w-full px-4 py-3 rounded-2xl border border-slate-200 text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-500 bg-slate-50">
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">NIC / Passport *</label>
-                            <input type="text" id="patientNic" required value="199854321098" class="w-full px-4 py-3 rounded-2xl border border-slate-200 text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-500 bg-slate-50">
+                            <input type="text" id="patientNic" required value="<%= nicVal %>" placeholder="e.g. 199854321098" class="w-full px-4 py-3 rounded-2xl border border-slate-200 text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-500 bg-slate-50">
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Age & Gender *</label>
                             <div class="flex space-x-2">
-                                <input type="number" id="patientAge" value="26" min="1" max="120" class="w-1/2 px-3 py-3 rounded-2xl border border-slate-200 text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-500 bg-slate-50">
+                                <input type="number" id="patientAge" value="<%= ageVal > 0 ? String.valueOf(ageVal) : "" %>" placeholder="Age" min="1" max="120" class="w-1/2 px-3 py-3 rounded-2xl border border-slate-200 text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-500 bg-slate-50">
                                 <select id="patientGender" class="w-1/2 px-2 py-3 rounded-2xl border border-slate-200 text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-500 bg-slate-50">
-                                    <option value="Female">Female</option>
-                                    <option value="Male">Male</option>
+                                    <option value="Female" <%= "Female".equalsIgnoreCase(genderVal) ? "selected" : "" %>>Female</option>
+                                    <option value="Male" <%= "Male".equalsIgnoreCase(genderVal) ? "selected" : "" %>>Male</option>
+                                    <option value="Other" <%= "Other".equalsIgnoreCase(genderVal) ? "selected" : "" %>>Other</option>
                                 </select>
                             </div>
                         </div>
@@ -215,7 +237,7 @@
                 <div>Date & Time: <span id="modalDateTime"></span></div>
             </div>
             <button onclick="window.location.href='appointment-details.jsp'" class="mt-6 w-full py-3.5 bg-teal-600 text-white font-bold rounded-2xl text-xs uppercase tracking-wider hover:bg-teal-700 transition-all">
-                View All Appointments
+                View My Appointments
             </button>
         </div>
     </div>
@@ -267,27 +289,83 @@
             }
         }
 
+        let currentBaseCost = 3000;
+        let currentTotalCost = 3000;
+
         function calculateLiveFee() {
             const select = document.getElementById('treatmentType');
-            const baseCost = parseFloat(select.options[select.selectedIndex].getAttribute('data-cost') || 3000);
+            currentBaseCost = parseFloat(select.options[select.selectedIndex].getAttribute('data-cost') || 3000);
             
             let addonCost = 0;
             document.querySelectorAll('.addon-checkbox:checked').forEach(cb => {
                 addonCost += parseFloat(cb.getAttribute('data-cost'));
             });
 
-            const total = baseCost + addonCost;
-            document.getElementById('baseRateText').innerText = `LKR ${baseCost.toLocaleString()}.00`;
+            currentTotalCost = currentBaseCost + addonCost;
+            document.getElementById('baseRateText').innerText = `LKR ${currentBaseCost.toLocaleString()}.00`;
             document.getElementById('addonRateText').innerText = `LKR ${addonCost.toLocaleString()}.00`;
-            document.getElementById('totalRateText').innerText = `LKR ${total.toLocaleString()}.00`;
+            document.getElementById('totalRateText').innerText = `LKR ${currentTotalCost.toLocaleString()}.00`;
         }
 
-        function submitAppointment() {
-            const aptNo = 'APT-' + Math.floor(1000 + Math.random() * 9000);
-            document.getElementById('modalAptNo').innerText = aptNo;
-            document.getElementById('modalDentist').innerText = document.getElementById('dentistName').value;
-            document.getElementById('modalDateTime').innerText = document.getElementById('appointmentDate').value + ' @ ' + document.getElementById('appointmentTime').value;
-            document.getElementById('successModal').classList.remove('hidden');
+        async function submitAppointment() {
+            const name = document.getElementById('patientName').value.trim();
+            const phone = document.getElementById('patientPhone').value.trim();
+            const email = document.getElementById('patientEmail').value.trim();
+            const nic = document.getElementById('patientNic').value.trim();
+            const age = document.getElementById('patientAge').value.trim();
+            const gender = document.getElementById('patientGender').value;
+            const dentist = document.getElementById('dentistName').value;
+            const treatment = document.getElementById('treatmentType').value;
+            const date = document.getElementById('appointmentDate').value;
+            const time = document.getElementById('appointmentTime').value;
+
+            if (!name || !phone || !email || !nic || !age || !date) {
+                alert('Please fill out all required appointment fields.');
+                return;
+            }
+
+            const formData = new URLSearchParams();
+            formData.append('patientName', name);
+            formData.append('patientPhone', phone);
+            formData.append('patientEmail', email);
+            formData.append('patientNic', nic);
+            formData.append('patientAge', age);
+            formData.append('patientGender', gender);
+            formData.append('dentistName', dentist);
+            formData.append('treatmentType', treatment);
+            formData.append('appointmentDate', date);
+            formData.append('appointmentTime', time);
+            formData.append('baseCost', currentBaseCost);
+            formData.append('totalCost', currentTotalCost);
+
+            document.querySelectorAll('.addon-checkbox:checked').forEach(cb => {
+                formData.append('addOns', cb.value);
+            });
+
+            try {
+                const res = await fetch('book-appointment', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'Accept': 'application/json'
+                    },
+                    body: formData.toString()
+                });
+
+                const data = await res.json();
+                if (data.success) {
+                    document.getElementById('modalAptNo').innerText = data.appointmentNumber;
+                    document.getElementById('modalDentist').innerText = data.dentist || dentist;
+                    document.getElementById('modalDateTime').innerText = data.dateTime || (date + ' @ ' + time);
+                    document.getElementById('successModal').classList.remove('hidden');
+                } else {
+                    alert(data.message || 'Error registering appointment.');
+                }
+            } catch (err) {
+                console.error(err);
+                // Fallback direct redirection
+                window.location.href = 'appointment-details.jsp';
+            }
         }
 
         // Initial check
