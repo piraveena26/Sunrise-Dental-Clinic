@@ -124,7 +124,7 @@
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Select Dentist *</label>
-                            <select id="dentistName" onchange="checkAvailability()" class="w-full px-4 py-3 rounded-2xl border border-slate-200 text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-500 bg-slate-50">
+                            <select id="dentistName" onchange="checkAvailability(true)" class="w-full px-4 py-3 rounded-2xl border border-slate-200 text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-500 bg-slate-50">
                                 <% for (com.sunrisedental.model.Doctor doc : doctorsList) { %>
                                 <option value="<%= doc.getName() %>"><%= doc.getName() %> (<%= doc.getSpecialization() %>)</option>
                                 <% } %>
@@ -147,11 +147,11 @@
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Appointment Date *</label>
-                            <input type="date" id="appointmentDate" onchange="checkAvailability()" required class="w-full px-4 py-3 rounded-2xl border border-slate-200 text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-500 bg-slate-50">
+                            <input type="date" id="appointmentDate" onchange="checkAvailability(true)" required class="w-full px-4 py-3 rounded-2xl border border-slate-200 text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-500 bg-slate-50">
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Time Slot *</label>
-                            <select id="appointmentTime" onchange="checkAvailability()" class="w-full px-4 py-3 rounded-2xl border border-slate-200 text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-500 bg-slate-50">
+                            <select id="appointmentTime" onchange="checkAvailability(true)" class="w-full px-4 py-3 rounded-2xl border border-slate-200 text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-500 bg-slate-50">
                                 <option value="09:00">09:00 AM - Morning Slot</option>
                                 <option value="10:30">10:30 AM - Morning Slot</option>
                                 <option value="14:00">02:00 PM - Afternoon Slot</option>
@@ -262,12 +262,15 @@
             <% } %>
         ];
 
-        function checkAvailability() {
+        let lastAlertedState = false;
+
+        function checkAvailability(userAction = false) {
             const dentist = document.getElementById('dentistName').value;
             const date = document.getElementById('appointmentDate').value;
             const time = document.getElementById('appointmentTime').value;
 
             let isBlocked = false;
+            let blockReason = "Selected Doctor is on Leave / Unavailable for this date/time.";
             for (let s of blockedSchedules) {
                 if (s.doctor === dentist && s.date === date && (s.slot === 'ALL_DAY' || s.slot === time)) {
                     isBlocked = true;
@@ -283,12 +286,19 @@
                 alertDiv.classList.add('flex');
                 submitBtn.disabled = true;
                 submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+
+                if (userAction || !lastAlertedState) {
+                    showToast(dentist + " is NOT AVAILABLE on " + date + " (" + time + "). Please choose another date or doctor.", "warning", "Doctor Not Available");
+                    lastAlertedState = true;
+                }
             } else {
                 alertDiv.classList.add('hidden');
                 alertDiv.classList.remove('flex');
                 submitBtn.disabled = false;
                 submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                lastAlertedState = false;
             }
+            return isBlocked;
         }
 
         let currentBaseCost = 3000;
