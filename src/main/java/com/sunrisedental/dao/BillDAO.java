@@ -15,14 +15,15 @@ public class BillDAO {
     private static final Logger LOGGER = Logger.getLogger(BillDAO.class.getName());
 
     /**
-     * Retrieve all bills from the MySQL database.
-     * Auto-syncs any appointments that don't have a bill yet.
+     * Retrieve all active (non-cancelled) bills from the MySQL database.
+     * Cancelled appointments are strictly excluded from billing.
      */
     public List<Bill> getAllBills() {
         syncAppointmentsToBills();
         List<Bill> list = new ArrayList<>();
         String sql = "SELECT b.*, a.treatment_type FROM bills b " +
-                     "LEFT JOIN appointments a ON b.appointment_id = a.id OR b.appointment_number = a.appointment_number " +
+                     "INNER JOIN appointments a ON (b.appointment_id = a.id OR b.appointment_number = a.appointment_number) " +
+                     "WHERE a.status != 'CANCELLED' " +
                      "ORDER BY b.id DESC";
 
         try (Connection conn = DBConnectionManager.getInstance().getConnection();
@@ -185,7 +186,7 @@ public class BillDAO {
         String selectSql = "SELECT a.id, a.appointment_number, a.patient_name, a.base_fee, a.total_fee, a.status " +
                            "FROM appointments a " +
                            "LEFT JOIN bills b ON a.id = b.appointment_id " +
-                           "WHERE b.id IS NULL";
+                           "WHERE b.id IS NULL AND a.status != 'CANCELLED'";
 
         String insertSql = "INSERT INTO bills (invoice_number, appointment_id, appointment_number, patient_name, treatment_fee, addons_fee, registration_fee, tax_amount, grand_total, payment_status, payment_method) " +
                            "VALUES (?, ?, ?, ?, ?, ?, 500.00, 0.00, ?, ?, 'Cash')";
