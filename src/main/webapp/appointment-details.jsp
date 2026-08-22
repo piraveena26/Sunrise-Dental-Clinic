@@ -225,16 +225,76 @@
 
                 const data = await res.json();
                 if (data.success) {
-                    alert("Appointment " + aptNo + " has been cancelled. Observer notifications dispatched.");
-                    window.location.reload();
+                    showToast("Appointment " + aptNo + " cancelled successfully. System observers notified.", "danger", "Booking Cancelled");
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1200);
                 } else {
-                    alert("Could not cancel appointment.");
+                    showToast("Could not cancel appointment: " + (data.message || "Unknown error"), "error", "Cancellation Failed");
                 }
             } catch (err) {
                 console.error(err);
-                window.location.reload();
+                showToast("Error connecting to server.", "error", "Network Error");
             }
         }
+
+        // Universal Toast Notification Function
+        function showToast(message, type = 'success', title = '') {
+            const container = document.getElementById('toastContainer');
+            if (!container) return;
+
+            const toast = document.createElement('div');
+            toast.className = 'pointer-events-auto flex items-start space-x-3 p-4 rounded-2xl shadow-xl border backdrop-blur-md transform transition-all duration-300 translate-y-[-10px] opacity-0';
+
+            let icon = '';
+            let defaultTitle = '';
+            let bgClasses = '';
+
+            if (type === 'success') {
+                bgClasses = 'bg-emerald-50/95 border-emerald-300 text-emerald-900 shadow-emerald-500/10';
+                icon = '<i class="fa-solid fa-circle-check text-emerald-600 text-lg mt-0.5"></i>';
+                defaultTitle = title || 'Success';
+            } else if (type === 'error' || type === 'danger') {
+                bgClasses = 'bg-rose-50/95 border-rose-300 text-rose-900 shadow-rose-500/10';
+                icon = '<i class="fa-solid fa-circle-xmark text-rose-600 text-lg mt-0.5"></i>';
+                defaultTitle = title || 'Booking Cancelled';
+            } else if (type === 'warning') {
+                bgClasses = 'bg-amber-50/95 border-amber-300 text-amber-900 shadow-amber-500/10';
+                icon = '<i class="fa-solid fa-triangle-exclamation text-amber-600 text-lg mt-0.5"></i>';
+                defaultTitle = title || 'Notice';
+            } else {
+                bgClasses = 'bg-sky-50/95 border-sky-300 text-sky-900 shadow-sky-500/10';
+                icon = '<i class="fa-solid fa-circle-info text-sky-600 text-lg mt-0.5"></i>';
+                defaultTitle = title || 'Notification';
+            }
+
+            toast.className += ' ' + bgClasses;
+
+            toast.innerHTML = icon +
+                '<div class="flex-1 pr-2">' +
+                    '<h4 class="text-xs font-black uppercase tracking-wider">' + defaultTitle + '</h4>' +
+                    '<p class="text-xs font-semibold mt-0.5 leading-relaxed">' + message + '</p>' +
+                '</div>' +
+                '<button onclick="this.parentElement.remove()" class="text-slate-400 hover:text-slate-700 text-sm">' +
+                    '<i class="fa-solid fa-xmark"></i>' +
+                '</button>';
+
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.classList.remove('translate-y-[-10px]', 'opacity-0');
+                toast.classList.add('translate-y-0', 'opacity-100');
+            }, 10);
+
+            setTimeout(() => {
+                toast.classList.remove('translate-y-0', 'opacity-100');
+                toast.classList.add('translate-y-[-10px]', 'opacity-0');
+                setTimeout(() => toast.remove(), 300);
+            }, 4500);
+        }
     </script>
+
+    <!-- Toast Notification Container -->
+    <div id="toastContainer" class="fixed top-6 right-6 z-50 flex flex-col space-y-3 pointer-events-none max-w-sm w-full"></div>
 </body>
 </html>
