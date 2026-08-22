@@ -19,6 +19,7 @@ import java.util.List;
 public class BookAppointmentServlet extends HttpServlet {
 
     private final AppointmentDAO appointmentDAO = new AppointmentDAO();
+    private final com.sunrisedental.dao.BillDAO billDAO = new com.sunrisedental.dao.BillDAO();
     private final AppointmentSubject appointmentSubject = new AppointmentSubject();
 
     @Override
