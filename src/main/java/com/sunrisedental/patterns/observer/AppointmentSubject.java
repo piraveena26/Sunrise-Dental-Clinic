@@ -20,15 +20,21 @@ class EmailNotificationObserver implements AppointmentObserver {
 
     @Override
     public void onAppointmentEvent(String eventType, Appointment appointment, String details) {
-        String msg = String.format("EMAIL DISPATCHED to %s (%s): Dear %s, your appointment %s for %s on %s at %s is %s.",
-                appointment.getPatient().getFullName().replaceAll(" ", ".").toLowerCase() + "@gmail.com",
-                appointment.getPatient().getContactNumber(),
-                appointment.getPatient().getFullName(),
+        String patientEmail = (appointment.getPatient() != null && appointment.getPatient().getEmail() != null && !appointment.getPatient().getEmail().trim().isEmpty())
+                ? appointment.getPatient().getEmail().trim()
+                : "patient@sunrisedental.com";
+        String patientName = (appointment.getPatient() != null) ? appointment.getPatient().getFullName() : "Patient";
+
+        String msg = String.format("EMAIL DISPATCHED to %s: Dear %s, your appointment %s (%s) with %s on %s at %s is now %s. %s",
+                patientEmail,
+                patientName,
                 appointment.getAppointmentNumber(),
                 appointment.getTreatmentType(),
+                appointment.getDentistName(),
                 appointment.getAppointmentDate(),
                 appointment.getAppointmentTime(),
-                eventType.toLowerCase()
+                eventType.toUpperCase(),
+                details != null ? "[" + details + "]" : ""
         );
         dispatchedEmails.add(msg);
         System.out.println("[Observer: Email] " + msg);
@@ -46,12 +52,20 @@ class SMSNotificationObserver implements AppointmentObserver {
 
     @Override
     public void onAppointmentEvent(String eventType, Appointment appointment, String details) {
-        String sms = String.format("SMS DISPATCHED to %s: [Sunrise Dental] Appt %s confirmed with %s for %s @ %s.",
-                appointment.getPatient().getContactNumber(),
+        String patientPhone = (appointment.getPatient() != null && appointment.getPatient().getContactNumber() != null && !appointment.getPatient().getContactNumber().trim().isEmpty())
+                ? appointment.getPatient().getContactNumber().trim()
+                : "N/A";
+        String patientName = (appointment.getPatient() != null) ? appointment.getPatient().getFullName() : "Patient";
+
+        String sms = String.format("SMS DISPATCHED to %s: [Sunrise Dental] Hello %s, Appt %s (%s) with %s on %s @ %s is %s.",
+                patientPhone,
+                patientName,
                 appointment.getAppointmentNumber(),
+                appointment.getTreatmentType(),
                 appointment.getDentistName(),
                 appointment.getAppointmentDate(),
-                appointment.getAppointmentTime()
+                appointment.getAppointmentTime(),
+                eventType.toUpperCase()
         );
         dispatchedSMS.add(sms);
         System.out.println("[Observer: SMS] " + sms);

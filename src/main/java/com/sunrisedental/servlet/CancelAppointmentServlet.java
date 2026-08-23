@@ -23,10 +23,11 @@ public class CancelAppointmentServlet extends HttpServlet {
         String appointmentNumber = request.getParameter("appointmentNumber");
         boolean success = false;
         if (appointmentNumber != null && !appointmentNumber.trim().isEmpty()) {
+            Appointment app = appointmentDAO.getAppointmentByNumber(appointmentNumber.trim());
             success = appointmentDAO.cancelAppointment(appointmentNumber.trim());
             if (success) {
-                Appointment app = DatabaseConnectionManager.getInstance().getAppointment(appointmentNumber.trim());
                 if (app != null) {
+                    app.setStatus("CANCELLED");
                     appointmentSubject.notifyObservers("CANCELLED", app, "Appointment " + appointmentNumber + " was cancelled by user.");
                 }
             }

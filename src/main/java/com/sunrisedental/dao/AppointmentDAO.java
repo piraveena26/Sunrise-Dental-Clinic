@@ -175,6 +175,29 @@ public class AppointmentDAO {
     }
 
     /**
+     * Retrieve single appointment by appointment number
+     */
+    public Appointment getAppointmentByNumber(String appointmentNumber) {
+        String sql = "SELECT a.*, GROUP_CONCAT(ad.addon_name SEPARATOR ', ') AS addon_list " +
+                "FROM appointments a " +
+                "LEFT JOIN appointment_addons ad ON a.id = ad.appointment_id " +
+                "WHERE a.appointment_number = ? " +
+                "GROUP BY a.id";
+        try (Connection conn = DBConnectionManager.getInstance().getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, appointmentNumber);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return mapResultSetToAppointment(rs);
+                }
+            }
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "[AppointmentDAO] Error fetching appointment " + appointmentNumber, e);
+        }
+        return DatabaseConnectionManager.getInstance().getAppointment(appointmentNumber);
+    }
+
+    /**
      * Cancel Appointment Status
      */
     public boolean cancelAppointment(String appointmentNumber) {
