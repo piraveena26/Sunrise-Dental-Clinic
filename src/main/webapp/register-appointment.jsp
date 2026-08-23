@@ -166,9 +166,9 @@
                         <span id="availabilityText">Selected Doctor is on Leave / Unavailable for this date/time! Please select another date or time slot.</span>
                     </div>
 
-                    <!-- Add-on Services (Decorator Pattern) -->
+                    <!-- Add-on Services -->
                     <div>
-                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Optional Add-on Services (Decorator Pattern)</label>
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Optional Add-on Services</label>
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                             <label class="flex items-center p-3 rounded-2xl border border-slate-200 hover:border-teal-300 cursor-pointer transition-all bg-slate-50">
                                 <input type="checkbox" class="addon-checkbox text-teal-600 rounded-lg focus:ring-teal-500 mr-2" value="Digital X-Ray" data-cost="1500" onchange="calculateLiveFee()">
@@ -198,7 +198,7 @@
             <!-- Price Breakdown Side Card -->
             <div class="lg:col-span-1 bg-white p-6 rounded-3xl border border-slate-100 shadow-sm h-fit">
                 <h3 class="text-base font-bold text-slate-800 mb-4 flex items-center">
-                    <i class="fa-solid fa-calculator text-teal-600 mr-2"></i> Fee Breakdown (Decorator)
+                    <i class="fa-solid fa-calculator text-teal-600 mr-2"></i> Fee Breakdown
                 </h3>
 
                 <div class="space-y-3 text-xs font-semibold text-slate-600">
@@ -214,11 +214,6 @@
                         <span>Total Fee:</span>
                         <span id="totalRateText" class="text-teal-600">LKR 3,000.00</span>
                     </div>
-                </div>
-
-                <div class="mt-6 p-4 rounded-2xl bg-teal-50 border border-teal-100 text-[11px] text-teal-800 leading-relaxed">
-                    <i class="fa-solid fa-circle-info mr-1 text-teal-600"></i>
-                    <strong>Observer Pattern Active:</strong> Registering will automatically send SMS & Email confirmation alerts to your registered email and phone number.
                 </div>
             </div>
 
