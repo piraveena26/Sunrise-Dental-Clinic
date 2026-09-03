@@ -90,13 +90,18 @@ public class DoctorScheduleDAO {
      * Check if a doctor is unavailable on a specific date & time slot
      */
     public boolean isDoctorUnavailable(String dentistName, String date, String timeSlot) {
+        if (dentistName == null || date == null) return false;
+        String cleanName = dentistName.trim();
         String sql = "SELECT COUNT(*) FROM doctor_schedules s JOIN doctors d ON s.doctor_id = d.id " +
-                     "WHERE d.name = ? AND s.unavailable_date = ? AND (s.time_slot = 'ALL_DAY' OR s.time_slot = ?)";
+                     "WHERE (d.name = ? OR ? LIKE CONCAT('%', d.name, '%') OR d.name LIKE CONCAT('%', ?, '%')) " +
+                     "AND s.unavailable_date = ? AND (s.time_slot = 'ALL_DAY' OR s.time_slot = 'ALL' OR s.time_slot = ?)";
         try (Connection conn = DBConnectionManager.getInstance().getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, dentistName);
-            stmt.setString(2, date);
-            stmt.setString(3, timeSlot);
+            stmt.setString(1, cleanName);
+            stmt.setString(2, cleanName);
+            stmt.setString(3, cleanName);
+            stmt.setString(4, date.trim());
+            stmt.setString(5, timeSlot != null ? timeSlot.trim() : "09:00");
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
                     return rs.getInt(1) > 0;

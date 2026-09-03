@@ -64,6 +64,22 @@ public class BookAppointmentServlet extends HttpServlet {
             addOns.addAll(Arrays.asList(addOnsArray));
         }
 
+        // Server-side Doctor Availability & Leave Enforcement
+        com.sunrisedental.dao.DoctorScheduleDAO scheduleDAO = new com.sunrisedental.dao.DoctorScheduleDAO();
+        if (scheduleDAO.isDoctorUnavailable(dentistName, appointmentDate, appointmentTime)) {
+            String acceptHeader = request.getHeader("Accept");
+            if (acceptHeader != null && acceptHeader.contains("application/json")) {
+                response.setContentType("application/json;charset=UTF-8");
+                response.getWriter().write(String.format("{\"success\":false, \"message\":\"Dr. %s is ON LEAVE / UNAVAILABLE on %s (%s). Please choose another date or doctor.\"}", dentistName, appointmentDate, appointmentTime));
+                return;
+            }
+            request.getSession(true).setAttribute("flashMessage", "Selected doctor is unavailable on this date. Please pick another date.");
+            request.getSession(true).setAttribute("flashType", "warning");
+            request.getSession(true).setAttribute("flashTitle", "Doctor Unavailable");
+            response.sendRedirect(request.getContextPath() + "/register-appointment.jsp");
+            return;
+        }
+
         // Generate unique appointment number
         String aptNo = "APT-" + (System.currentTimeMillis() % 9000 + 1000);
 

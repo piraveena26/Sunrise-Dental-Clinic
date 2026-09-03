@@ -253,37 +253,56 @@
         // Doctor Unavailability Schedule Data from Server
         const blockedSchedules = [
             <% for (DoctorSchedule s : doctorSchedules) { %>
-            { doctor: "<%= s.getDoctorName() %>", date: "<%= s.getUnavailableDate() %>", slot: "<%= s.getTimeSlot() %>" },
+            { 
+                doctor: "<%= s.getDoctorName() != null ? s.getDoctorName().replace("\"", "\\\"").trim() : "" %>", 
+                date: "<%= s.getUnavailableDate() != null ? s.getUnavailableDate().trim() : "" %>", 
+                slot: "<%= s.getTimeSlot() != null ? s.getTimeSlot().trim() : "" %>" 
+            },
             <% } %>
         ];
 
         let lastAlertedState = false;
 
         function checkAvailability(userAction = false) {
-            const dentist = document.getElementById('dentistName').value;
-            const date = document.getElementById('appointmentDate').value;
-            const time = document.getElementById('appointmentTime').value;
+            const dentist = document.getElementById('dentistName').value.trim();
+            const date = document.getElementById('appointmentDate').value.trim();
+            const time = document.getElementById('appointmentTime').value.trim();
 
             let isBlocked = false;
             let blockReason = "Selected Doctor is on Leave / Unavailable for this date/time.";
+            
+            const cleanDentist = dentist.toLowerCase().replace(/^dr\.\s*/i, '').trim();
+
             for (let s of blockedSchedules) {
-                if (s.doctor === dentist && s.date === date && (s.slot === 'ALL_DAY' || s.slot === time)) {
+                const sDoctor = (s.doctor || "").toLowerCase().replace(/^dr\.\s*/i, '').trim();
+                const matchDoctor = sDoctor === cleanDentist || sDoctor.includes(cleanDentist) || cleanDentist.includes(sDoctor);
+                const matchDate = s.date === date;
+                const matchSlot = (s.slot === 'ALL_DAY' || s.slot === 'ALL' || s.slot === time);
+
+                if (matchDoctor && matchDate && matchSlot) {
                     isBlocked = true;
+                    if (s.slot === 'ALL_DAY' || s.slot === 'ALL') {
+                        blockReason = dentist + " is on FULL DAY LEAVE on " + date + ". Please choose another date or doctor.";
+                    } else {
+                        blockReason = dentist + " is UNAVAILABLE at " + time + " on " + date + ". Please choose another time slot or doctor.";
+                    }
                     break;
                 }
             }
 
             const alertDiv = document.getElementById('availabilityAlert');
+            const alertText = document.getElementById('availabilityText');
             const submitBtn = document.getElementById('submitBtn');
 
             if (isBlocked) {
                 alertDiv.classList.remove('hidden');
                 alertDiv.classList.add('flex');
+                if (alertText) alertText.innerText = blockReason;
                 submitBtn.disabled = true;
                 submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
 
                 if (userAction || !lastAlertedState) {
-                    showToast(dentist + " is NOT AVAILABLE on " + date + " (" + time + "). Please choose another date or doctor.", "warning", "Doctor Not Available");
+                    showToast(blockReason, "warning", "Doctor Not Available");
                     lastAlertedState = true;
                 }
             } else {
@@ -315,6 +334,11 @@
         }
 
         async function submitAppointment() {
+            if (checkAvailability(true)) {
+                showToast('Cannot register: Selected Doctor is on Leave / Unavailable for this date and time slot.', 'error', 'Doctor Unavailable');
+                return;
+            }
+
             const name = document.getElementById('patientName').value.trim();
             const phone = document.getElementById('patientPhone').value.trim();
             const email = document.getElementById('patientEmail').value.trim();
