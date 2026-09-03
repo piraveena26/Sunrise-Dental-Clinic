@@ -143,7 +143,7 @@
                                 String statusClass = "CONFIRMED".equals(status) ? "bg-emerald-50 text-emerald-700" :
                                                      "CANCELLED".equals(status) ? "bg-rose-50 text-rose-700" : "bg-sky-50 text-sky-700";
                             %>
-                            <tr class="hover:bg-slate-50 transition-colors appointment-row" data-status="<%= status %>">
+                            <tr class="hover:bg-slate-50 transition-colors appointment-row" data-status="<%= status %>" id="row-<%= a.getAppointmentNumber() %>">
                                 <td class="py-4 px-6 font-extrabold text-teal-600"><%= a.getAppointmentNumber() %></td>
                                 <td class="py-4 px-6">
                                     <span class="font-bold text-slate-800 block"><%= pName %></span>
@@ -163,7 +163,7 @@
                                 </td>
                                 <td class="py-4 px-6 text-right space-x-2">
                                     <% if ("CONFIRMED".equalsIgnoreCase(status) && ("ADMIN".equalsIgnoreCase(userRole) || "PATIENT".equalsIgnoreCase(userRole))) { %>
-                                    <button onclick="cancelAppointment('<%= a.getAppointmentNumber() %>')" class="px-3 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold rounded-xl text-[11px] transition-all">
+                                    <button onclick="openCancelModal('<%= a.getAppointmentNumber() %>')" class="px-3 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold rounded-xl text-[11px] transition-all cursor-pointer">
                                         <i class="fa-solid fa-ban mr-1"></i> Cancel
                                     </button>
                                     <% } else if ("CANCELLED".equalsIgnoreCase(status)) { %>
@@ -178,6 +178,27 @@
             </div>
         </div>
     </main>
+
+    <!-- Custom Cancel Appointment Confirmation Modal -->
+    <div id="cancelConfirmModal" class="hidden fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-sm w-full p-6 text-center shadow-2xl border border-slate-100 transform transition-all duration-200">
+            <div class="w-14 h-14 bg-rose-100 text-rose-600 rounded-2xl flex items-center justify-center mx-auto text-2xl mb-4">
+                <i class="fa-solid fa-calendar-xmark"></i>
+            </div>
+            <h3 class="text-lg font-black text-slate-900 tracking-tight">Cancel Appointment</h3>
+            <p class="text-xs text-slate-500 mt-2 leading-relaxed font-medium">
+                Are you sure you want to cancel appointment <span id="cancelAptNoSpan" class="text-rose-600 font-extrabold"></span>? This booking will be removed from the active schedule.
+            </p>
+            <div class="mt-6 flex space-x-3">
+                <button type="button" onclick="closeCancelModal()" class="flex-1 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-2xl text-xs transition-all cursor-pointer">
+                    Keep Booking
+                </button>
+                <button type="button" onclick="confirmCancelAppointment()" class="flex-1 py-3 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-2xl text-xs uppercase tracking-wider transition-all shadow-lg shadow-rose-500/25 flex items-center justify-center space-x-1 cursor-pointer">
+                    <span>Yes, Cancel</span>
+                </button>
+            </div>
+        </div>
+    </div>
 
     <!-- Footer -->
     <footer class="bg-white border-t border-slate-200 py-6 text-center text-xs text-slate-500 font-medium">
@@ -205,10 +226,27 @@
             });
         }
 
-        async function cancelAppointment(aptNo) {
-            if (!confirm("Are you sure you want to cancel appointment " + aptNo + "?")) {
-                return;
-            }
+        let pendingCancelAptNo = null;
+
+        function openCancelModal(aptNo) {
+            pendingCancelAptNo = aptNo;
+            document.getElementById('cancelAptNoSpan').innerText = aptNo;
+            const modal = document.getElementById('cancelConfirmModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeCancelModal() {
+            pendingCancelAptNo = null;
+            const modal = document.getElementById('cancelConfirmModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        async function confirmCancelAppointment() {
+            if (!pendingCancelAptNo) return;
+            const aptNo = pendingCancelAptNo;
+            closeCancelModal();
 
             try {
                 const formData = new URLSearchParams();
@@ -225,76 +263,32 @@
 
                 const data = await res.json();
                 if (data.success) {
-                    showToast("Appointment " + aptNo + " cancelled successfully. System observers notified.", "danger", "Booking Cancelled");
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 1200);
+                    showToast('Appointment ' + aptNo + ' cancelled successfully.', 'error', 'Booking Cancelled');
+                    
+                    // Immediately update row appearance in DOM
+                    const row = document.getElementById('row-' + aptNo);
+                    if (row) {
+                        row.setAttribute('data-status', 'CANCELLED');
+                        const statusBadgeTd = row.querySelector('td:nth-child(7)');
+                        if (statusBadgeTd) {
+                            statusBadgeTd.innerHTML = '<span class="px-3 py-1 rounded-full text-[10px] font-extrabold bg-rose-50 text-rose-700">CANCELLED</span>';
+                        }
+                        const actionTd = row.querySelector('td:nth-child(8)');
+                        if (actionTd) {
+                            actionTd.innerHTML = '<span class="text-[11px] text-slate-400 italic">Cancelled</span>';
+                        }
+                    }
                 } else {
-                    showToast("Could not cancel appointment: " + (data.message || "Unknown error"), "error", "Cancellation Failed");
+                    showToast('Could not cancel appointment: ' + (data.message || 'Unknown error'), 'error', 'Cancellation Failed');
                 }
             } catch (err) {
                 console.error(err);
-                showToast("Error connecting to server.", "error", "Network Error");
+                showToast('Error connecting to server.', 'error', 'Network Error');
             }
-        }
-
-        // Universal Toast Notification Function
-        function showToast(message, type = 'success', title = '') {
-            const container = document.getElementById('toastContainer');
-            if (!container) return;
-
-            const toast = document.createElement('div');
-            toast.className = 'pointer-events-auto flex items-start space-x-3 p-4 rounded-2xl shadow-xl border backdrop-blur-md transform transition-all duration-300 translate-y-[-10px] opacity-0';
-
-            let icon = '';
-            let defaultTitle = '';
-            let bgClasses = '';
-
-            if (type === 'success') {
-                bgClasses = 'bg-emerald-50/95 border-emerald-300 text-emerald-900 shadow-emerald-500/10';
-                icon = '<i class="fa-solid fa-circle-check text-emerald-600 text-lg mt-0.5"></i>';
-                defaultTitle = title || 'Success';
-            } else if (type === 'error' || type === 'danger') {
-                bgClasses = 'bg-rose-50/95 border-rose-300 text-rose-900 shadow-rose-500/10';
-                icon = '<i class="fa-solid fa-circle-xmark text-rose-600 text-lg mt-0.5"></i>';
-                defaultTitle = title || 'Booking Cancelled';
-            } else if (type === 'warning') {
-                bgClasses = 'bg-amber-50/95 border-amber-300 text-amber-900 shadow-amber-500/10';
-                icon = '<i class="fa-solid fa-triangle-exclamation text-amber-600 text-lg mt-0.5"></i>';
-                defaultTitle = title || 'Notice';
-            } else {
-                bgClasses = 'bg-sky-50/95 border-sky-300 text-sky-900 shadow-sky-500/10';
-                icon = '<i class="fa-solid fa-circle-info text-sky-600 text-lg mt-0.5"></i>';
-                defaultTitle = title || 'Notification';
-            }
-
-            toast.className += ' ' + bgClasses;
-
-            toast.innerHTML = icon +
-                '<div class="flex-1 pr-2">' +
-                    '<h4 class="text-xs font-black uppercase tracking-wider">' + defaultTitle + '</h4>' +
-                    '<p class="text-xs font-semibold mt-0.5 leading-relaxed">' + message + '</p>' +
-                '</div>' +
-                '<button onclick="this.parentElement.remove()" class="text-slate-400 hover:text-slate-700 text-sm">' +
-                    '<i class="fa-solid fa-xmark"></i>' +
-                '</button>';
-
-            container.appendChild(toast);
-
-            setTimeout(() => {
-                toast.classList.remove('translate-y-[-10px]', 'opacity-0');
-                toast.classList.add('translate-y-0', 'opacity-100');
-            }, 10);
-
-            setTimeout(() => {
-                toast.classList.remove('translate-y-0', 'opacity-100');
-                toast.classList.add('translate-y-[-10px]', 'opacity-0');
-                setTimeout(() => toast.remove(), 300);
-            }, 4500);
         }
     </script>
 
-    <!-- Toast Notification Container -->
-    <div id="toastContainer" class="fixed top-6 right-6 z-50 flex flex-col space-y-3 pointer-events-none max-w-sm w-full"></div>
+    <!-- Shared Toast Notifications -->
+    <jsp:include page="shared-toast.jsp" />
 </body>
 </html>
