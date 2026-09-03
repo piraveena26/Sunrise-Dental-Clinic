@@ -74,15 +74,24 @@ public class DoctorScheduleServlet extends HttpServlet {
 
             boolean success = scheduleDAO.addDoctorSchedule(doctorId, date, timeSlot != null ? timeSlot : "ALL_DAY", reason != null ? reason : "On Leave");
             if (success) {
-                response.sendRedirect(request.getContextPath() + "/doctor-schedule.jsp?status=success");
+                request.getSession(true).setAttribute("flashMessage", "Doctor leave / unavailability saved successfully!");
+                request.getSession(true).setAttribute("flashType", "success");
+                request.getSession(true).setAttribute("flashTitle", "Leave Saved");
+                response.sendRedirect(request.getContextPath() + "/doctor-schedule.jsp");
             } else {
-                response.sendRedirect(request.getContextPath() + "/doctor-schedule.jsp?status=error");
+                request.getSession(true).setAttribute("flashMessage", "Failed to save doctor leave slot.");
+                request.getSession(true).setAttribute("flashType", "error");
+                request.getSession(true).setAttribute("flashTitle", "Error");
+                response.sendRedirect(request.getContextPath() + "/doctor-schedule.jsp");
             }
         } else if ("delete".equalsIgnoreCase(action)) {
             String idStr = request.getParameter("id");
             int id = Integer.parseInt(idStr);
             scheduleDAO.removeDoctorSchedule(id);
-            response.sendRedirect(request.getContextPath() + "/doctor-schedule.jsp?status=deleted");
+            request.getSession(true).setAttribute("flashMessage", "Leave slot removed successfully.");
+            request.getSession(true).setAttribute("flashType", "info");
+            request.getSession(true).setAttribute("flashTitle", "Leave Removed");
+            response.sendRedirect(request.getContextPath() + "/doctor-schedule.jsp");
         }
     }
 

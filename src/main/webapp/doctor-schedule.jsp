@@ -17,7 +17,33 @@
 
     DoctorScheduleDAO scheduleDAO = new DoctorScheduleDAO();
     List<DoctorSchedule> schedules = scheduleDAO.getAllSchedules();
-    List<com.sunrisedental.model.Doctor> doctorsList = scheduleDAO.getAllDoctors();
+    List<com.sunrisedental.model.Doctor> allDoctors = scheduleDAO.getAllDoctors();
+    List<com.sunrisedental.model.Doctor> doctorsList = new java.util.ArrayList<>();
+
+    if ("DOCTOR".equalsIgnoreCase(userRole)) {
+        // Logged-in Doctor only sees their own name
+        for (com.sunrisedental.model.Doctor d : allDoctors) {
+            if (d.getUserId() == currentUser.getId() || 
+                (d.getName() != null && currentUser.getFullName() != null && d.getName().trim().equalsIgnoreCase(currentUser.getFullName().trim())) ||
+                (d.getEmail() != null && currentUser.getEmail() != null && d.getEmail().trim().equalsIgnoreCase(currentUser.getEmail().trim()))) {
+                doctorsList.add(d);
+            }
+        }
+        if (doctorsList.isEmpty() && !allDoctors.isEmpty()) {
+            for (com.sunrisedental.model.Doctor d : allDoctors) {
+                if (currentUser.getFullName() != null && d.getName().toLowerCase().contains(currentUser.getFullName().toLowerCase())) {
+                    doctorsList.add(d);
+                    break;
+                }
+            }
+        }
+        if (doctorsList.isEmpty() && !allDoctors.isEmpty()) {
+            doctorsList.add(allDoctors.get(0));
+        }
+    } else {
+        // Admin sees all doctors in system
+        doctorsList = allDoctors;
+    }
 %>
 <!DOCTYPE html>
 <html lang="en">
@@ -153,6 +179,9 @@
     <footer class="bg-white border-t border-slate-200 py-6 text-center text-xs text-slate-500 font-medium">
         Sunrise Dental Clinic &copy; 2026 | Doctor Leave Management Portal
     </footer>
+
+    <!-- Shared Toast Notifications -->
+    <jsp:include page="shared-toast.jsp" />
 
 </body>
 </html>
