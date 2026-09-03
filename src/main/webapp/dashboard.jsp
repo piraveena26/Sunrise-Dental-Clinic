@@ -69,7 +69,7 @@
                     <h1 class="text-3xl font-black tracking-tight">Welcome back, <%= fullName %>!</h1>
                     <p class="text-xs text-teal-100 mt-2 max-w-xl leading-relaxed font-medium">
                         <% if (isPatient) { %>
-                            Access your personal dental appointments, schedule new treatments, view itemized bills, and receive instant observer notification alerts.
+                            Access your personal dental appointments, schedule new treatments, view itemized bills, and receive instant notification alerts.
                         <% } else { %>
                             Sunrise Dental Clinic Management System. Access authorized tools, appointments, leave scheduling, and billing below.
                         <% } %>
@@ -111,8 +111,10 @@
                 </div>
                 <div>
                     <span class="text-xs font-medium text-slate-400 uppercase tracking-wider block">Available Dentists</span>
-                    <span class="text-2xl font-extrabold text-slate-800">2 On Duty</span>
-                    <span class="text-xs text-emerald-600 font-semibold block mt-0.5">Dr. Silva & Dr. Fernando</span>
+                    <span class="text-2xl font-extrabold text-slate-800">
+                        <%= new com.sunrisedental.dao.DoctorScheduleDAO().getAllDoctors().size() %> On Duty
+                    </span>
+                    <span class="text-xs text-emerald-600 font-semibold block mt-0.5">Ready for Consultations</span>
                 </div>
             </div>
 
@@ -138,7 +140,7 @@
                 <div>
                     <span class="text-xs font-medium text-slate-400 uppercase tracking-wider block">Notifications</span>
                     <span class="text-2xl font-extrabold text-slate-800">Email & SMS</span>
-                    <span class="text-xs text-amber-600 font-semibold block mt-0.5">Observer Pattern Alerts</span>
+                    <span class="text-xs text-amber-600 font-semibold block mt-0.5">Real-time alerts</span>
                 </div>
             </div>
         </div>
