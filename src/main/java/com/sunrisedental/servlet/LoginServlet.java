@@ -45,6 +45,11 @@ public class LoginServlet extends HttpServlet {
             session.setAttribute("fullName", user.getFullName());
             session.setAttribute("email", user.getEmail());
 
+            // Flash toast notification for dashboard
+            session.setAttribute("flashMessage", "Welcome back, " + user.getFullName() + "! You are now logged in.");
+            session.setAttribute("flashType", "success");
+            session.setAttribute("flashTitle", "Login Successful");
+
             // Redirect based on role
             response.sendRedirect(request.getContextPath() + "/dashboard.jsp");
         } else {

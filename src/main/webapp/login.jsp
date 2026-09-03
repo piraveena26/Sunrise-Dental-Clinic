@@ -114,5 +114,9 @@
             document.getElementById('roleSelect').value = role;
         }
     </script>
+
+    <!-- Shared Toast Notifications -->
+    <jsp:include page="shared-toast.jsp" />
+
 </body>
 </html>

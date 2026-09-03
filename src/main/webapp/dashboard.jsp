@@ -253,5 +253,8 @@
         Sunrise Dental Clinic &copy; 2026 | Logged in as <%= fullName %> (<%= userRole %>)
     </footer>
 
+    <!-- Shared Toast Notifications -->
+    <jsp:include page="shared-toast.jsp" />
+
 </body>
 </html>

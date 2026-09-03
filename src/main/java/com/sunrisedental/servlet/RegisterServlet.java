@@ -54,8 +54,11 @@ public class RegisterServlet extends HttpServlet {
         );
 
         if (success) {
-            request.setAttribute("successMessage", "Registration Successful! Please log in with your new patient account.");
-            request.getRequestDispatcher("/login.jsp").forward(request, response);
+            // Use session flash so the toast shows after redirect
+            request.getSession(true).setAttribute("flashMessage", "Account registered successfully! Please log in with your credentials.");
+            request.getSession(true).setAttribute("flashType", "success");
+            request.getSession(true).setAttribute("flashTitle", "Registration Successful");
+            response.sendRedirect(request.getContextPath() + "/login.jsp");
         } else {
             request.setAttribute("errorMessage", "Registration failed due to a database error. Please try again.");
             request.getRequestDispatcher("/register.jsp").forward(request, response);

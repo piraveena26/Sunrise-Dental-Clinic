@@ -18,7 +18,11 @@ public class LogoutServlet extends HttpServlet {
         if (session != null) {
             session.invalidate();
         }
-        response.sendRedirect(request.getContextPath() + "/login.jsp?logout=true");
+        HttpSession newSession = request.getSession(true);
+        newSession.setAttribute("flashMessage", "You have been logged out successfully.");
+        newSession.setAttribute("flashType", "info");
+        newSession.setAttribute("flashTitle", "Logged Out");
+        response.sendRedirect(request.getContextPath() + "/login.jsp");
     }
 
     @Override

@@ -85,10 +85,10 @@
                         <span class="text-[10px] font-semibold text-teal-600 uppercase tracking-wider block"><%= userRole %></span>
                     </div>
                 </div>
-                <a href="logout" class="px-4 py-2.5 bg-rose-50 text-rose-600 hover:bg-rose-600 hover:text-white font-bold rounded-2xl text-xs transition-all duration-200 border border-rose-200 shadow-sm flex items-center space-x-1.5">
+                <button type="button" onclick="openLogoutModal()" class="px-4 py-2.5 bg-rose-50 text-rose-600 hover:bg-rose-600 hover:text-white font-bold rounded-2xl text-xs transition-all duration-200 border border-rose-200 shadow-sm flex items-center space-x-1.5 cursor-pointer">
                     <i class="fa-solid fa-right-from-bracket"></i>
                     <span>Logout</span>
-                </a>
+                </button>
                 <% } else { %>
                 <a href="register.jsp" class="px-4 py-2.5 bg-slate-100 text-slate-700 hover:bg-slate-200 font-bold rounded-2xl text-xs transition-all duration-200">
                     <i class="fa-solid fa-user-plus mr-1"></i> Register
@@ -101,3 +101,42 @@
         </div>
     </div>
 </header>
+
+<!-- Custom Logout Confirmation Modal -->
+<div id="logoutConfirmModal" class="hidden fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-sm w-full p-6 text-center shadow-2xl border border-slate-100 transform transition-all duration-200">
+        <div class="w-14 h-14 bg-rose-100 text-rose-600 rounded-2xl flex items-center justify-center mx-auto text-2xl mb-4">
+            <i class="fa-solid fa-right-from-bracket"></i>
+        </div>
+        <h3 class="text-lg font-black text-slate-900 tracking-tight">Confirm Sign Out</h3>
+        <p class="text-xs text-slate-500 mt-2 leading-relaxed font-medium">
+            Are you sure you want to log out of <strong class="text-slate-700">Sunrise Dental Clinic</strong>?
+        </p>
+        <div class="mt-6 flex space-x-3">
+            <button type="button" onclick="closeLogoutModal()" class="flex-1 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-2xl text-xs transition-all">
+                Cancel
+            </button>
+            <a href="logout" class="flex-1 py-3 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-2xl text-xs uppercase tracking-wider transition-all shadow-lg shadow-rose-500/25 flex items-center justify-center space-x-1">
+                <span>Sign Out</span>
+            </a>
+        </div>
+    </div>
+</div>
+
+<script>
+    function openLogoutModal() {
+        const m = document.getElementById('logoutConfirmModal');
+        if (m) {
+            m.classList.remove('hidden');
+            m.classList.add('flex');
+        }
+    }
+    function closeLogoutModal() {
+        const m = document.getElementById('logoutConfirmModal');
+        if (m) {
+            m.classList.add('hidden');
+            m.classList.remove('flex');
+        }
+    }
+</script>
+
